@@ -1,12 +1,19 @@
 import knex from 'knex';
 import { config } from '../config/index.js';
 
+const isProduction = config.env === 'production';
+
 const knexConfig = {
   client: 'postgresql',
-  connection: config.database.url,
+  connection: isProduction
+    ? {
+        connectionString: config.database.url,
+        ssl: { rejectUnauthorized: false }
+      }
+    : config.database.url,
   pool: {
     min: 2,
-    max: 10
+    max: isProduction ? 20 : 10
   },
   migrations: {
     directory: './src/db/migrations',

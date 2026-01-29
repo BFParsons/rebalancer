@@ -23,14 +23,21 @@ const config: Record<string, Knex.Config> = {
 
   production: {
     client: 'postgresql',
-    connection: process.env.DATABASE_URL,
+    connection: {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    },
     pool: {
       min: 2,
       max: 20
     },
     migrations: {
-      directory: './dist/db/migrations',
-      extension: 'js'
+      directory: './src/db/migrations',
+      extension: 'ts'
+    },
+    seeds: {
+      directory: './src/db/seeds',
+      extension: 'ts'
     }
   }
 };
