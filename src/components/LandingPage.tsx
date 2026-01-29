@@ -1,385 +1,656 @@
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
+import { useState } from 'react';
 import {
+  Activity,
   BarChart3,
-  Users,
-  Heart,
-  TrendingUp,
-  MessageSquare,
-  Shield,
-  ArrowRight,
   CheckCircle2,
-  Phone,
-  Mail,
-  MapPin,
   Clock,
-  Award,
-  Target,
-  Zap,
-  PieChart
+  Heart,
+  Layout,
+  Menu,
+  MessageSquare,
+  ShieldCheck,
+  TrendingUp,
+  X,
+  ArrowRight,
+  AlertTriangle,
+  Sparkles,
+  RefreshCw,
+  Send,
 } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
 }
 
-export function LandingPage({ onGetStarted }: LandingPageProps) {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  className?: string;
+}
+
+const Button = ({ children, variant = 'primary', className = '', ...props }: ButtonProps) => {
+  const baseStyles =
+    'px-6 py-3 rounded-full font-medium transition-all duration-200 flex items-center justify-center gap-2';
+  const variants = {
+    primary: 'bg-teal-800 text-white hover:bg-teal-700 shadow-md hover:shadow-lg',
+    secondary: 'bg-white text-teal-900 border border-teal-200 hover:border-teal-400 hover:bg-teal-50',
+    outline: 'border-2 border-white text-white hover:bg-white/10',
+    ghost: 'text-slate-600 hover:text-teal-800 hover:bg-slate-100/50',
+  };
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top Bar */}
-      <div className="bg-slate-800 text-white py-2 px-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-sm">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2">
-              <Phone className="w-4 h-4" />
-              1-800-REBALANCE
-            </span>
-            <span className="hidden sm:flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              hello@rebalance.io
-            </span>
+    <button className={`${baseStyles} ${variants[variant]} ${className}`} {...props}>
+      {children}
+    </button>
+  );
+};
+
+const SectionHeading = ({
+  title,
+  subtitle,
+  centered = true,
+}: {
+  title: string;
+  subtitle: string;
+  centered?: boolean;
+}) => (
+  <div className={`mb-12 ${centered ? 'text-center' : 'text-left'}`}>
+    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">{title}</h2>
+    <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">{subtitle}</p>
+  </div>
+);
+
+const MockDashboardCard = () => (
+  <div className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden w-full max-w-sm mx-auto transform rotate-1 hover:rotate-0 transition-transform duration-500">
+    <div className="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+      <span className="font-semibold text-slate-700">Team Capacity</span>
+      <span className="text-xs font-medium bg-amber-100 text-amber-800 px-2 py-1 rounded-full flex items-center gap-1">
+        <AlertTriangle size={12} /> High Risk
+      </span>
+    </div>
+    <div className="p-5 space-y-4">
+      {[
+        { name: 'Sarah J.', load: 92, color: 'bg-red-500' },
+        { name: 'Marcus T.', load: 85, color: 'bg-amber-500' },
+        { name: 'Elena R.', load: 45, color: 'bg-teal-500' },
+      ].map((person, i) => (
+        <div key={i} className="space-y-1">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-700 font-medium">{person.name}</span>
+            <span className="text-slate-500">{person.load}%</span>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-amber-400">Support</a>
-            <a href="#" className="hover:text-amber-400">Contact</a>
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${person.color} rounded-full`}
+              style={{ width: `${person.load}%` }}
+            ></div>
           </div>
         </div>
-      </div>
+      ))}
+    </div>
+    <div className="bg-teal-50 p-3 text-center border-t border-teal-100">
+      <p className="text-xs text-teal-800 font-medium">
+        Recommendation: Shift 2 tasks from Sarah to Elena
+      </p>
+    </div>
+  </div>
+);
 
+const MockSurveyCard = () => (
+  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 max-w-xs mx-auto transform -rotate-2 hover:rotate-0 transition-transform duration-500 relative z-10">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1573496359-0933d276c273?auto=format&fit=crop&q=80&w=100&h=100"
+          alt="Avatar"
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div>
+        <div className="text-xs text-slate-500">Weekly Check-in</div>
+        <div className="text-sm font-semibold text-slate-900">How is your workload?</div>
+      </div>
+    </div>
+    <div className="space-y-2">
+      <div className="p-3 border rounded-lg hover:bg-slate-50 cursor-pointer text-sm text-slate-600 transition-colors">
+        Manageable
+      </div>
+      <div className="p-3 border border-teal-500 bg-teal-50 rounded-lg cursor-pointer text-sm text-teal-900 font-medium shadow-sm">
+        I'm feeling overwhelmed
+      </div>
+      <div className="p-3 border rounded-lg hover:bg-slate-50 cursor-pointer text-sm text-slate-600 transition-colors">
+        I need more work
+      </div>
+    </div>
+  </div>
+);
+
+interface DemoResult {
+  riskLevel: string;
+  riskColor: string;
+  sentiment: string;
+  draftResponse: string;
+  actionItem: string;
+}
+
+export function LandingPage({ onGetStarted }: LandingPageProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [demoInput, setDemoInput] = useState(
+    "I'm trying to keep up, but the Q3 deadline is really tight. I skipped lunch twice this week to make progress."
+  );
+  const [demoResult, setDemoResult] = useState<DemoResult | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleAnalyze = async () => {
+    if (!demoInput.trim()) return;
+    setIsAnalyzing(true);
+    setDemoError(null);
+    setDemoResult(null);
+
+    // Simulate AI analysis for demo purposes
+    setTimeout(() => {
+      setDemoResult({
+        riskLevel: 'High',
+        riskColor: 'red',
+        sentiment: 'Anxious but Committed',
+        draftResponse:
+          "I appreciate you sharing this with me. Let's find time this week to discuss how we can better support you with the Q3 deadline.",
+        actionItem: 'Schedule a 1:1 meeting within 24 hours',
+      });
+      setIsAnalyzing(false);
+    }, 1500);
+  };
+
+  const resetDemo = () => {
+    setDemoResult(null);
+    setDemoInput(
+      "I'm trying to keep up, but the Q3 deadline is really tight. I skipped lunch twice this week to make progress."
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-teal-100">
       {/* Navigation */}
-      <nav className="bg-white border-b-4 border-amber-500 sticky top-0 z-50 shadow-md">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
-                <Target className="w-7 h-7 text-white" />
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="bg-teal-800 p-1.5 rounded-lg">
+                <Activity className="text-white" size={24} />
               </div>
-              <div>
-                <span className="text-2xl font-bold text-slate-800">Rebalance</span>
-                <p className="text-xs text-slate-500 -mt-1">Workforce Wellbeing Platform</p>
-              </div>
+              <span className="text-xl font-bold text-teal-900 tracking-tight">Rebalance</span>
             </div>
+
+            {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="font-medium text-slate-700 hover:text-amber-600">Features</a>
-              <a href="#how-it-works" className="font-medium text-slate-700 hover:text-amber-600">How It Works</a>
-              <a href="#testimonials" className="font-medium text-slate-700 hover:text-amber-600">Testimonials</a>
-              <a href="#pricing" className="font-medium text-slate-700 hover:text-amber-600">Pricing</a>
+              <a href="#how-it-works" className="text-slate-600 hover:text-teal-800 font-medium text-sm">
+                How it Works
+              </a>
+              <a href="#features" className="text-slate-600 hover:text-teal-800 font-medium text-sm">
+                Features
+              </a>
+              <a href="#ai-demo" className="text-teal-700 font-medium text-sm flex items-center gap-1">
+                <Sparkles size={14} /> AI Copilot
+              </a>
+              <a href="#testimonials" className="text-slate-600 hover:text-teal-800 font-medium text-sm">
+                Testimonials
+              </a>
+              <Button variant="ghost" onClick={onGetStarted}>
+                Log In
+              </Button>
+              <Button onClick={onGetStarted}>Try Demo</Button>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" className="hidden sm:inline-flex border-2 border-slate-300 font-semibold">
-                Sign In
-              </Button>
-              <Button
-                onClick={onGetStarted}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg px-6"
-              >
-                Free Demo
-              </Button>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button onClick={toggleMenu} className="text-slate-600 hover:text-teal-900 p-2">
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Nav */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-b border-slate-100">
+            <div className="px-4 pt-2 pb-6 space-y-2">
+              <a
+                href="#how-it-works"
+                className="block px-3 py-2 text-slate-600 font-medium"
+                onClick={toggleMenu}
+              >
+                How it Works
+              </a>
+              <a href="#features" className="block px-3 py-2 text-slate-600 font-medium" onClick={toggleMenu}>
+                Features
+              </a>
+              <a
+                href="#ai-demo"
+                className="block px-3 py-2 text-teal-700 font-medium flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <Sparkles size={16} /> AI Copilot
+              </a>
+              <a
+                href="#testimonials"
+                className="block px-3 py-2 text-slate-600 font-medium"
+                onClick={toggleMenu}
+              >
+                Testimonials
+              </a>
+              <div className="pt-4 flex flex-col gap-3">
+                <Button variant="secondary" className="w-full justify-center" onClick={onGetStarted}>
+                  Log In
+                </Button>
+                <Button className="w-full justify-center" onClick={onGetStarted}>
+                  Try Demo
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block bg-amber-500 text-white px-4 py-2 rounded font-semibold text-sm mb-6 shadow-lg">
-                TRUSTED BY 500+ COMPANIES WORLDWIDE
+      <section className="relative pt-16 pb-24 lg:pt-32 lg:pb-40 overflow-hidden bg-gradient-to-br from-teal-50/50 via-white to-amber-50/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Hero Content */}
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-teal-100/50 border border-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold mb-6">
+                <span className="w-2 h-2 bg-teal-600 rounded-full animate-pulse"></span>
+                Now available for enterprise teams
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                Empower Your Workforce.
-                <span className="text-amber-400 block mt-2">Prevent Burnout.</span>
+              <h1 className="text-4xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-6">
+                Your Team's Wellbeing,{' '}
+                <span className="text-teal-800">Measured and Managed.</span>
               </h1>
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Rebalance is the comprehensive employee wellbeing platform that helps HR leaders
-                and managers monitor team health, identify stress patterns, and create a
-                thriving workplace culture.
+              <p className="text-xl text-slate-600 leading-relaxed mb-8 max-w-lg">
+                Prevent burnout before it happens. Rebalance gives managers real-time visibility into
+                workload capacity so you can support your people and deliver on time.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Button
-                  onClick={onGetStarted}
-                  size="lg"
-                  className="bg-amber-500 hover:bg-amber-600 text-white text-lg px-8 py-6 font-bold shadow-xl"
-                >
-                  Request Free Demo
-                  <ArrowRight className="w-5 h-5 ml-2" />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button className="h-14 px-8 text-lg shadow-teal-900/10" onClick={onGetStarted}>
+                  Start Your Free Trial
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-slate-800 text-lg px-8 py-6 font-semibold"
-                >
-                  Watch Video Tour
+                <Button variant="secondary" className="h-14 px-8 text-lg" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
+                  See How It Works
                 </Button>
               </div>
-
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-700">
-                <div>
-                  <p className="text-3xl font-bold text-amber-400">98%</p>
-                  <p className="text-slate-400 text-sm">Customer Satisfaction</p>
+              <div className="mt-8 flex items-center gap-4 text-sm text-slate-500">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden"
+                    >
+                      <img src={`https://randomuser.me/api/portraits/thumb/men/${i + 20}.jpg`} alt="User" />
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-3xl font-bold text-amber-400">50K+</p>
-                  <p className="text-slate-400 text-sm">Employees Supported</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-amber-400">40%</p>
-                  <p className="text-slate-400 text-sm">Reduced Turnover</p>
-                </div>
+                <p>Trusted by 500+ forward-thinking companies</p>
               </div>
             </div>
 
-            {/* Hero Image */}
-            <div className="relative">
-              <div className="bg-white rounded-lg shadow-2xl overflow-hidden border-4 border-amber-500">
-                <img
-                  src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=700&h=500&fit=crop"
-                  alt="Diverse team of professionals in a meeting"
-                  className="w-full"
-                />
+            {/* Hero Visuals */}
+            <div className="relative hidden lg:block h-[500px]">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-teal-100/30 rounded-full blur-3xl -z-10"></div>
+              <div className="absolute top-10 right-10 z-20 transition-all duration-700 hover:scale-105">
+                <MockDashboardCard />
               </div>
-              {/* Floating Card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-lg shadow-xl p-5 border-l-4 border-green-500">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="absolute bottom-20 left-10 z-30 transition-all duration-700 hover:scale-105">
+                <MockSurveyCard />
+              </div>
+              <div className="absolute top-0 right-0 p-4 bg-white rounded-2xl shadow-lg animate-bounce">
+                <Heart className="text-rose-500 fill-rose-500" size={24} />
+              </div>
+              <div className="absolute bottom-40 right-20 bg-white/80 backdrop-blur p-4 rounded-xl shadow-sm border border-slate-100 max-w-[200px]">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Retention Rate
+                </div>
+                <div className="flex items-end gap-2">
+                  <span className="text-2xl font-bold text-slate-900">96%</span>
+                  <span className="text-sm font-medium text-emerald-600 mb-1 flex items-center">
+                    <TrendingUp size={14} className="mr-0.5" /> +12%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="py-10 border-y border-slate-100 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-8">
+            Empowering teams across industries
+          </p>
+          <div className="flex flex-wrap justify-center gap-12 md:gap-20 grayscale opacity-60">
+            {['Acme Healthcare', 'Summit Logistics', 'Apex Finance', 'Global Retail', 'North Mfg'].map(
+              (company) => (
+                <span key={company} className="text-xl font-bold text-slate-800 font-serif italic">
+                  {company}
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="The Hidden Cost of Overwork"
+            subtitle="Good managers want to help, but they often lack the visibility to act before it's too late. The result is costly for everyone."
+          />
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-rose-600 group-hover:scale-110 transition-transform">
+                <Activity size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Silent Burnout</h3>
+              <p className="text-slate-600">
+                High performers often suffer in silence until they suddenly quit. You lose your best talent
+                without warning.
+              </p>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-amber-600 group-hover:scale-110 transition-transform">
+                <BarChart3 size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Capacity Blindspots</h3>
+              <p className="text-slate-600">
+                Without data, work distribution is a guessing game. Some drown in work while others have
+                bandwidth.
+              </p>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-600 group-hover:scale-110 transition-transform">
+                <MessageSquare size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Honesty Gap</h3>
+              <p className="text-slate-600">
+                Employees fear speaking up about stress in face-to-face meetings. Critical issues go
+                unreported.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution Overview */}
+      <section id="features" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="order-2 lg:order-1 relative">
+              <img
+                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=1000"
+                alt="Manager reviewing dashboard"
+                className="rounded-2xl shadow-2xl z-10 relative"
+              />
+              <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-lg z-20 max-w-xs hidden md:block">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-700">
+                    <CheckCircle2 size={20} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-800">94%</p>
-                    <p className="text-sm text-slate-600">Wellness Score</p>
+                    <p className="font-bold text-slate-900">Workload Rebalanced</p>
+                    <p className="text-sm text-slate-500">Team health score up 15%</p>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2">
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">See the signal, not the noise.</h2>
+              <p className="text-lg text-slate-600 mb-8">
+                Rebalance replaces gut feelings with data. We aggregate simple weekly check-ins into a
+                powerful dashboard that highlights who needs help and who can step up.
+              </p>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="mt-1 flex-shrink-0">
+                    <Clock className="text-teal-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900">2-Minute Weekly Pulse</h4>
+                    <p className="text-slate-600">
+                      Surveys so simple your team will actually complete them. No login required.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="mt-1 flex-shrink-0">
+                    <ShieldCheck className="text-teal-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900">Psychological Safety First</h4>
+                    <p className="text-slate-600">
+                      Anonymous feedback channels allow employees to voice concerns without fear.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="mt-1 flex-shrink-0">
+                    <Layout className="text-teal-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900">Actionable Resource Planning</h4>
+                    <p className="text-slate-600">
+                      Identify bottlenecks instantly and redistribute tasks to keep the team moving
+                      sustainably.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-10">
+                <button onClick={onGetStarted} className="text-teal-800 font-bold flex items-center hover:underline">
+                  Explore all features <ArrowRight size={20} className="ml-2" />
+                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Logos Section */}
-      <section className="py-12 bg-slate-100 border-y-2 border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-slate-500 font-medium mb-8">TRUSTED BY LEADING ORGANIZATIONS</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-70">
-            <span className="text-2xl font-bold text-slate-500">Deloitte</span>
-            <span className="text-2xl font-bold text-slate-500">Accenture</span>
-            <span className="text-2xl font-bold text-slate-500">KPMG</span>
-            <span className="text-2xl font-bold text-slate-500">Salesforce</span>
-            <span className="text-2xl font-bold text-slate-500">Adobe</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Problem/Solution Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=600&h=450&fit=crop"
-                alt="Professional woman reviewing reports"
-                className="rounded-lg shadow-xl border-4 border-slate-100"
-              />
+      {/* AI Demo Section */}
+      <section id="ai-demo" className="py-24 bg-gradient-to-b from-white to-teal-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold mb-4 uppercase tracking-wide">
+              <Sparkles size={12} /> AI-Powered Insights
             </div>
-            <div>
-              <p className="text-amber-600 font-bold text-sm tracking-wider mb-4">THE CHALLENGE</p>
-              <h2 className="text-4xl font-bold text-slate-800 mb-6">
-                Employee Burnout Costs US Businesses $300 Billion Annually
-              </h2>
-              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Studies show that 76% of employees experience burnout at some point. Yet most
-                organizations lack the tools to identify warning signs before it's too late.
-              </p>
-              <ul className="space-y-4">
-                {[
-                  'High turnover and recruitment costs',
-                  'Decreased productivity and engagement',
-                  'Increased absenteeism and health claims',
-                  'Damaged team morale and culture'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700">
-                    <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-red-500 font-bold text-sm">!</span>
-                    </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50 border-y-2 border-amber-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-amber-600 font-bold text-sm tracking-wider mb-4">THE SOLUTION</p>
-              <h2 className="text-4xl font-bold text-slate-800 mb-6">
-                Proactive Wellbeing Management for Modern Organizations
-              </h2>
-              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Rebalance provides weekly pulse surveys that take just 2 minutes to complete.
-                Our platform aggregates responses into actionable insights, helping managers
-                support their teams before small issues become big problems.
-              </p>
-              <ul className="space-y-4 mb-8">
-                {[
-                  'Early warning system for burnout risk',
-                  'Anonymous feedback channels',
-                  'Real-time dashboards and reporting',
-                  'Actionable recommendations'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700 font-medium">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                onClick={onGetStarted}
-                className="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-8 py-3"
-              >
-                See How It Works
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </div>
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&h=450&fit=crop"
-                alt="Business man and woman collaborating"
-                className="rounded-lg shadow-xl border-4 border-white"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-amber-600 font-bold text-sm tracking-wider mb-4">PLATFORM FEATURES</p>
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
-              Everything You Need to Support Employee Wellbeing
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Experience the AI Manager Copilot
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              A comprehensive suite of tools designed for HR professionals, team leaders,
-              and executives who care about their people.
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Don't just collect feedback—understand it. See how Rebalance AI instantly analyzes check-ins
+              to spot burnout risks and suggest actions.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <PieChart className="w-8 h-8" />,
-                title: 'Advanced Analytics',
-                description: 'Comprehensive dashboards with trend analysis, heat maps, and predictive insights.',
-                color: 'bg-blue-500'
-              },
-              {
-                icon: <MessageSquare className="w-8 h-8" />,
-                title: 'Anonymous Feedback',
-                description: 'Secure channels for employees to share concerns without fear of identification.',
-                color: 'bg-green-500'
-              },
-              {
-                icon: <Clock className="w-8 h-8" />,
-                title: '2-Minute Surveys',
-                description: 'Quick weekly check-ins that respect employee time while gathering meaningful data.',
-                color: 'bg-purple-500'
-              },
-              {
-                icon: <TrendingUp className="w-8 h-8" />,
-                title: 'Trend Monitoring',
-                description: 'Track team wellness over time and identify patterns before they become problems.',
-                color: 'bg-amber-500'
-              },
-              {
-                icon: <Shield className="w-8 h-8" />,
-                title: 'Enterprise Security',
-                description: 'SOC 2 compliant with end-to-end encryption and strict data privacy controls.',
-                color: 'bg-red-500'
-              },
-              {
-                icon: <Zap className="w-8 h-8" />,
-                title: 'Smart Alerts',
-                description: 'Automated notifications when team metrics indicate potential concerns.',
-                color: 'bg-teal-500'
-              }
-            ].map((feature, index) => (
-              <Card key={index} className="border-2 border-slate-200 hover:border-amber-400 transition-colors hover:shadow-lg">
-                <CardContent className="p-8">
-                  <div className={`w-16 h-16 ${feature.color} rounded-lg flex items-center justify-center text-white mb-6 shadow-lg`}>
-                    {feature.icon}
+          <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="bg-slate-50 border-b border-slate-200 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <div className="text-xs font-mono text-slate-400">rebalance_ai_preview</div>
+            </div>
+
+            <div className="p-6 md:p-8 grid gap-8">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Employee Check-in Feedback
+                </label>
+                <div className="relative">
+                  <textarea
+                    value={demoInput}
+                    onChange={(e) => setDemoInput(e.target.value)}
+                    className="w-full h-32 p-4 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none resize-none text-slate-600 bg-slate-50"
+                    placeholder="Paste a sample check-in here..."
+                  />
+                  <div className="absolute bottom-3 right-3">
+                    <button
+                      onClick={() =>
+                        setDemoInput(
+                          "I'm trying to keep up, but the Q3 deadline is really tight. I skipped lunch twice this week to make progress."
+                        )
+                      }
+                      className="text-xs text-teal-600 hover:underline"
+                    >
+                      Use Sample
+                    </button>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-3">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !demoInput}
+                    className={`w-full md:w-auto ${isAnalyzing ? 'opacity-80 cursor-wait' : ''}`}
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        Processing
+                        <RefreshCw className="animate-spin ml-2" size={18} />
+                      </>
+                    ) : (
+                      <>Analyze Check-in</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {demoError && (
+                <div className="p-4 bg-red-50 text-red-600 rounded-lg text-sm text-center">{demoError}</div>
+              )}
+
+              {demoResult && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="border-t border-slate-100 pt-8">
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
+                      AI Analysis Result
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="text-xs text-slate-500 mb-1">Detected Risk Level</div>
+                          <div
+                            className={`text-xl font-bold flex items-center gap-2 ${
+                              demoResult.riskColor === 'red'
+                                ? 'text-red-600'
+                                : demoResult.riskColor === 'amber'
+                                ? 'text-amber-600'
+                                : 'text-emerald-600'
+                            }`}
+                          >
+                            {demoResult.riskLevel} Risk
+                            <AlertTriangle
+                              size={20}
+                              className={
+                                demoResult.riskColor === 'red' || demoResult.riskColor === 'amber'
+                                  ? 'block'
+                                  : 'hidden'
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="text-xs text-slate-500 mb-1">Sentiment</div>
+                          <div className="text-lg font-semibold text-slate-800">{demoResult.sentiment}</div>
+                        </div>
+                        <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100">
+                          <div className="text-xs text-indigo-500 mb-1">Recommended Action</div>
+                          <div className="text-sm font-medium text-indigo-900">{demoResult.actionItem}</div>
+                        </div>
+                      </div>
+                      <div className="bg-teal-50 rounded-xl p-5 border border-teal-100 relative">
+                        <div className="absolute top-4 right-4 text-teal-200">
+                          <MessageSquare size={40} />
+                        </div>
+                        <div className="text-xs font-bold text-teal-800 uppercase mb-2">
+                          Drafted Manager Response
+                        </div>
+                        <p className="text-teal-900 text-sm leading-relaxed italic">
+                          "{demoResult.draftResponse}"
+                        </p>
+                        <div className="mt-4 pt-4 border-t border-teal-100 flex gap-2">
+                          <button className="text-xs bg-white py-1.5 px-3 rounded-md border border-teal-200 text-teal-700 font-medium shadow-sm hover:bg-teal-50">
+                            Copy to Clipboard
+                          </button>
+                          <button className="text-xs bg-teal-700 py-1.5 px-3 rounded-md text-white font-medium shadow-sm hover:bg-teal-800 flex items-center gap-1">
+                            Send <Send size={10} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={resetDemo}
+                      className="text-sm text-slate-400 hover:text-slate-600 flex items-center justify-center gap-1 mx-auto"
+                    >
+                      <RefreshCw size={12} /> Reset Demo
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-slate-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-24 bg-teal-900 text-white relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '40px 40px',
+          }}
+        ></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <p className="text-amber-400 font-bold text-sm tracking-wider mb-4">HOW IT WORKS</p>
-            <h2 className="text-4xl font-bold mb-4">
-              Get Started in Three Simple Steps
-            </h2>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              Implementation is quick and easy. Most teams are up and running within a day.
+            <h2 className="text-3xl font-bold mb-4">A simple rhythm for sustainable work</h2>
+            <p className="text-teal-100 max-w-2xl mx-auto">
+              No complex integrations. No steep learning curves. Just insight.
             </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {[
               {
                 step: '01',
-                title: 'Set Up Your Team',
-                description: 'Import your employee roster via CSV or integrate with your existing HR system. Customize survey questions to match your organization.',
-                image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=300&fit=crop'
+                title: 'Check In',
+                desc: 'Team receives a link via email or Slack. They answer 3 simple questions about load and stress.',
               },
               {
                 step: '02',
-                title: 'Collect Insights',
-                description: 'Employees receive weekly check-ins via email or Slack. Our intelligent surveys adapt based on previous responses.',
-                image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop'
+                title: 'Analyze',
+                desc: 'Rebalance aggregates data into a heat map, highlighting burnout risks and available capacity.',
               },
               {
                 step: '03',
-                title: 'Take Action',
-                description: 'Review team dashboards, identify concerns early, and access recommended interventions. Track improvement over time.',
-                image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=300&fit=crop'
-              }
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="relative mb-6">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="rounded-lg shadow-xl w-full h-56 object-cover border-4 border-amber-500"
-                  />
-                  <div className="absolute -top-4 -left-4 w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
-                    {item.step}
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{item.description}</p>
+                title: 'Discuss',
+                desc: 'Managers use the data to guide 1:1s, focusing on support rather than just status updates.',
+              },
+              {
+                step: '04',
+                title: 'Adjust',
+                desc: 'Work is redistributed based on reality. The team stays healthy and projects stay on track.',
+              },
+            ].map((item, i) => (
+              <div key={i} className="relative">
+                <div className="text-6xl font-bold text-teal-800/50 mb-4 font-mono">{item.step}</div>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-teal-100/80 leading-relaxed">{item.desc}</p>
+                {i !== 3 && (
+                  <div className="hidden md:block absolute top-12 right-0 w-full h-[2px] bg-gradient-to-r from-teal-700 to-transparent transform translate-x-1/2"></div>
+                )}
               </div>
             ))}
           </div>
@@ -387,193 +658,193 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="py-20 bg-white">
+      <section id="testimonials" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-amber-600 font-bold text-sm tracking-wider mb-4">TESTIMONIALS</p>
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
-              What Our Customers Say
-            </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Join hundreds of organizations that have transformed their workplace culture with Rebalance.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "Rebalance helped us reduce turnover by 35% in the first year. The early warning system caught issues we would have missed completely. It's been transformative for our organization.",
-                author: "Margaret Chen",
-                role: "Chief Human Resources Officer",
-                company: "National Healthcare Group",
-                image: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=150&h=150&fit=crop&crop=face"
-              },
-              {
-                quote: "As a plant manager, I never had visibility into how my team was really doing. Now I can address problems proactively instead of waiting for someone to quit.",
-                author: "Robert Williams",
-                role: "Regional Plant Manager",
-                company: "Midwest Manufacturing Co.",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-              },
-              {
-                quote: "The anonymous feedback feature gave our employees a voice they never had before. The insights have shaped our entire wellness program strategy.",
-                author: "Patricia Rodriguez",
-                role: "VP of People Operations",
-                company: "Financial Services Inc.",
-                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="border-2 border-slate-200 shadow-lg">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-slate-700 mb-6 leading-relaxed">"{testimonial.quote}"</p>
-                  <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.author}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-amber-400"
-                    />
-                    <div>
-                      <p className="font-bold text-slate-800">{testimonial.author}</p>
-                      <p className="text-sm text-slate-500">{testimonial.role}</p>
-                      <p className="text-sm text-amber-600 font-medium">{testimonial.company}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Banner */}
-      <section className="py-16 bg-gradient-to-r from-slate-800 to-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { value: '500+', label: 'Organizations' },
-              { value: '50,000+', label: 'Employees Supported' },
-              { value: '98%', label: 'Customer Retention' },
-              { value: '2 Min', label: 'Average Survey Time' }
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <p className="text-4xl sm:text-5xl font-bold text-amber-400 mb-2">{stat.value}</p>
-                <p className="text-slate-300 font-medium">{stat.label}</p>
+          <SectionHeading
+            title="Leaders love Rebalance"
+            subtitle="Join hundreds of managers who put their people first."
+          />
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 relative">
+              <div className="flex gap-1 text-amber-400 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star}>&#9733;</span>
+                ))}
               </div>
-            ))}
+              <p className="text-slate-700 text-lg italic mb-6">
+                "We operate a high-pressure manufacturing floor. Before Rebalance, I only knew someone was
+                struggling when they handed in their notice. Now, we catch issues weeks in advance. It's
+                changed our culture."
+              </p>
+              <div className="flex items-center gap-4">
+                <img
+                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100&h=100"
+                  alt="David Chen"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <div className="font-bold text-slate-900">David Chen</div>
+                  <div className="text-sm text-slate-500">VP of Operations, North Mfg</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 relative">
+              <div className="flex gap-1 text-amber-400 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star}>&#9733;</span>
+                ))}
+              </div>
+              <p className="text-slate-700 text-lg italic mb-6">
+                "Most HR tools feel like surveillance. Rebalance feels like support. My team actually
+                appreciates the check-ins because they see us taking action on their feedback instantly."
+              </p>
+              <div className="flex items-center gap-4">
+                <img
+                  src="https://images.unsplash.com/photo-1573497019-9e6a575a8316?auto=format&fit=crop&q=80&w=100&h=100"
+                  alt="Maria Rodriguez"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <div className="font-bold text-slate-900">Maria Rodriguez</div>
+                  <div className="text-sm text-slate-500">Director of People, Apex Finance</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-amber-500 to-orange-500">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-            Ready to Transform Your Workplace?
-          </h2>
-          <p className="text-xl text-amber-100 mb-8 max-w-2xl mx-auto">
-            Join the growing number of organizations using Rebalance to build healthier,
-            more engaged, and more productive teams.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={onGetStarted}
-              size="lg"
-              className="bg-slate-800 hover:bg-slate-900 text-white text-lg px-10 py-6 font-bold shadow-xl"
-            >
-              Start Your Free Trial
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-amber-600 text-lg px-10 py-6 font-semibold"
-            >
-              Schedule a Demo
-            </Button>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-teal-800 rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-teal-700 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-amber-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                Build a healthier, higher-performing team today.
+              </h2>
+              <p className="text-teal-100 text-lg mb-8 max-w-2xl mx-auto">
+                Stop guessing about capacity. Start making data-driven decisions that protect your people
+                and your projects.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  className="bg-amber-500 text-teal-900 hover:bg-amber-400 border-none"
+                  onClick={onGetStarted}
+                >
+                  Get Started for Free
+                </Button>
+                <Button variant="outline" onClick={onGetStarted}>
+                  Try the Demo
+                </Button>
+              </div>
+              <p className="mt-6 text-sm text-teal-300">14-day free trial. No credit card required.</p>
+            </div>
           </div>
-          <p className="text-amber-100 mt-6">
-            No credit card required • Free 14-day trial • Cancel anytime
-          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white">
+      <footer className="bg-white border-t border-slate-100 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-16 grid grid-cols-2 md:grid-cols-5 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                  <Target className="w-7 h-7 text-white" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-teal-800 p-1.5 rounded-lg">
+                  <Activity className="text-white" size={20} />
                 </div>
-                <div>
-                  <span className="text-2xl font-bold">Rebalance</span>
-                  <p className="text-xs text-slate-400">Workforce Wellbeing Platform</p>
-                </div>
+                <span className="text-xl font-bold text-teal-900">Rebalance</span>
               </div>
-              <p className="text-slate-400 mb-6 max-w-sm">
-                Empowering organizations to build healthier, happier, and more productive workplaces through data-driven insights.
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Helping teams find their equilibrium through better data and human-centric management.
               </p>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-amber-500 transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                </a>
-                <a href="#" className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-amber-500 transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                </a>
-                <a href="#" className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-amber-500 transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.374-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z"/></svg>
-                </a>
-              </div>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-white">Product</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-amber-400">Features</a></li>
-                <li><a href="#" className="hover:text-amber-400">Pricing</a></li>
-                <li><a href="#" className="hover:text-amber-400">Integrations</a></li>
-                <li><a href="#" className="hover:text-amber-400">API</a></li>
+              <h4 className="font-bold text-slate-900 mb-4">Product</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="#features" className="hover:text-teal-800">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Pricing
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Integrations
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Enterprise
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-white">Company</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-amber-400">About Us</a></li>
-                <li><a href="#" className="hover:text-amber-400">Careers</a></li>
-                <li><a href="#" className="hover:text-amber-400">Blog</a></li>
-                <li><a href="#" className="hover:text-amber-400">Press</a></li>
+              <h4 className="font-bold text-slate-900 mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Burnout Guide
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Capacity Planning Template
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Customer Stories
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-white">Support</h4>
-              <ul className="space-y-3 text-slate-400">
-                <li><a href="#" className="hover:text-amber-400">Help Center</a></li>
-                <li><a href="#" className="hover:text-amber-400">Contact Us</a></li>
-                <li><a href="#" className="hover:text-amber-400">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-amber-400">Terms of Service</a></li>
+              <h4 className="font-bold text-slate-900 mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Legal
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-teal-800">
+                    Contact
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="py-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-slate-400 text-sm">
-              © 2026 Rebalance Inc. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6 text-slate-400 text-sm">
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                SOC 2 Certified
-              </span>
-              <span className="flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                GDPR Compliant
-              </span>
+          <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+            <p>&copy; {new Date().getFullYear()} Rebalance, Inc. All rights reserved.</p>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-teal-800">
+                Privacy Policy
+              </a>
+              <a href="#" className="hover:text-teal-800">
+                Terms of Service
+              </a>
             </div>
           </div>
         </div>
