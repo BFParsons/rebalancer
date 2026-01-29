@@ -119,9 +119,11 @@ export const getCurrentUser = async (req: Request, res: Response) => {
   }
 };
 
-// Development-only: Login without OAuth for testing
+// Demo/Development login without OAuth
 export const devLogin = async (req: Request, res: Response) => {
-  if (config.env !== 'development') {
+  // Allow dev login in demo mode (when ALLOW_DEV_LOGIN is set) or development
+  const allowDevLogin = config.env === 'development' || process.env.ALLOW_DEV_LOGIN === 'true';
+  if (!allowDevLogin) {
     return res.status(404).json({ error: 'Not found' });
   }
 
