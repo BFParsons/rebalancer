@@ -28,7 +28,8 @@ export function TeamDashboard({ teamMembers, responses, onUpdateWeeklyHours }: T
     const monday = new Date(today);
     monday.setDate(today.getDate() + mondayOffset);
     const currentWeekStart = monday.toISOString().split('T')[0];
-    return responses.filter(r => r.week === currentWeekStart);
+    // Compare just the date portion (handle both "2026-01-26" and "2026-01-26T00:00:00.000Z")
+    return responses.filter(r => r.week && r.week.substring(0, 10) === currentWeekStart);
   };
 
   const currentResponses = getCurrentWeekResponses();
