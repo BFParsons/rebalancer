@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence } from "motion/react";
 import { useAuth } from "./contexts/AuthContext";
 import { api } from "./api/client";
+import { LandingPage } from "./components/LandingPage";
 import { Login } from "./components/Login";
 import { Onboarding } from "./components/Onboarding";
 import { SurveyForm } from "./components/SurveyForm";
@@ -14,6 +15,7 @@ import { Users, ClipboardList, LogOut } from "lucide-react";
 
 export default function App() {
   const { user, isLoading, isAuthenticated, logout, refreshUser } = useAuth();
+  const [showLanding, setShowLanding] = useState(true);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [responses, setResponses] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<"survey" | "dashboard">("survey");
@@ -134,7 +136,12 @@ export default function App() {
     await refreshUser();
   };
 
-  // Show login if not authenticated
+  // Show landing page for new visitors
+  if (!isAuthenticated && showLanding) {
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+  }
+
+  // Show login if not authenticated but past landing
   if (!isAuthenticated) {
     return <Login />;
   }
